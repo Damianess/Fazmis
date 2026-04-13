@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Fazmis/Fazmis.csproj" />
+  <Project Path="FazmisUi/FazmisUi.csproj" Id="835a7409-de14-43bf-8a21-5e160d711a52" />
 </Solution>

@@ -1,34 +1,31 @@
 ﻿//Wersja DotNeta 9
-using System.Data.SqlClient;
-
+using System;
+using Microsoft.Data.SqlClient; // Zmieniłem pakiet ponieważ poprzedni powodował błędy 
 class Program
 {
-    [Obsolete]
     static void Main()
     {
-        string connectionString = @"Server=.\SQLEXPRESS;Integrated Security=true;";
+        string serverConnection = @"Server=.\SQLEXPRESS;Integrated Security=true;TrustServerCertificate=True;";
         string databaseName = "Fazmis";
-        using (SqlConnection connection = new SqlConnection(connectionString))
+        string dbConnectionString = $@"Server=.\SQLEXPRESS;Database={databaseName};Integrated Security=true;TrustServerCertificate=True;";
+
+        // 1. Tworzenie Bazy Danych
+        using (SqlConnection connection = new SqlConnection(serverConnection))
         {
             connection.Open();
-
             string createDbQuery = $@"
             IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{databaseName}')
             BEGIN
                 CREATE DATABASE {databaseName}
             END";
-
             ExecuteQuery(connection, createDbQuery);
         }
-
-        string dbConnectionString = $@"Server=.\SQLEXPRESS;Database={databaseName};Integrated Security=true;";
 
         using (SqlConnection connection = new SqlConnection(dbConnectionString))
         {
             connection.Open();
 
-            string query = @"
-
+            string createTablesQuery = @"
             IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Kategorie')
             CREATE TABLE Kategorie (
                 ID_Kategorii INT PRIMARY KEY IDENTITY(1,1),
@@ -91,15 +88,68 @@ class Program
                 Ilosc_Zuzycia DECIMAL(10,4),
                 ID_Przedmiotu INT NOT NULL,
                 FOREIGN KEY (ID_Przedmiotu) REFERENCES Magazyn(ID_Przedmiotu)
-            );
-            ";
+            );";
 
-            ExecuteQuery(connection, query);
+            ExecuteQuery(connection, createTablesQuery);
+            string DanePrzyklad = @"
+            IF NOT EXISTS (SELECT * FROM Kategorie)
+            BEGIN
+                INSERT INTO Kategorie (Nazwa, Typ) VALUES 
+                ('Warzywa', 'Świeże'), ('Nabiał', 'Chłodnia'), 
+                ('Mięsa', 'Chłodnia'), ('Sosy i Oliwy', 'Suche'), ('Napoje', 'Napój');
+            END
 
-            Console.WriteLine("Sukces");
+            IF NOT EXISTS (SELECT * FROM Dostawcy)
+            BEGIN
+                INSERT INTO Dostawcy (Nazwa, Telefon, Email, Miasto, Kraj) VALUES 
+                ('Hurtownia Ital-Food', '123-456-789', 'zamowienia@italfood.pl', 'Wrocław', 'Polska'),
+                ('Lokalny Rolnik - Grzegorz', '555-222-111', 'eko-warzywa@poczta.pl', 'Pszczyna', 'Polska');
+            END
+
+            IF NOT EXISTS (SELECT * FROM Magazyn)
+            BEGIN
+                INSERT INTO Magazyn (Nazwa, Ilosc, Jednostka, Dostepny, ID_Kategorii) VALUES 
+                ('Ser Mozzarella', 20.5, 'kg', 1, (SELECT TOP 1 ID_Kategorii FROM Kategorie WHERE Nazwa='Nabiał')),
+                ('Mąka Typ 00', 50.0, 'kg', 1, (SELECT TOP 1 ID_Kategorii FROM Kategorie WHERE Nazwa='Sosy i Oliwy')),
+                ('Salami Picante', 5.0, 'kg', 1, (SELECT TOP 1 ID_Kategorii FROM Kategorie WHERE Nazwa='Mięsa'));
+            END";
+
+            ExecuteQuery(connection, DanePrzyklad);
+            Console.WriteLine("Pomyślnie utworzono bazę");
+            Console.WriteLine("Czytanie informacji z bazy");
+            string ZKategorii = "SELECT Nazwa, Ilosc, Jednostka FROM Magazyn";
+
+                SqlCommand polecenie1 = new SqlCommand(ZKategorii, connection);
+
+                using (SqlDataReader reader = polecenie1.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string nazwa = reader["Nazwa"].ToString();
+                        decimal ilosc =(decimal)reader["Ilosc"];
+                        string jednostka = reader["Jednostka"].ToString();
+                        Console.WriteLine("{0,-20} | {1,-10} | {2,-10}", nazwa, ilosc, jednostka);
+                    }
+                Console.WriteLine("Koniec informacji z Kategorii");
+            }
+                ExecuteQuery(connection, ZKategorii);
+            string ZDostawcy = "SELECT Nazwa, Telefon, Miasto FROM Dostawcy";
+
+            SqlCommand polecenie2 = new SqlCommand(ZDostawcy, connection);
+
+            using (SqlDataReader reader = polecenie2.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    string nazwa = reader["Nazwa"].ToString();
+                    string telefon = reader["Telefon"] != DBNull.Value ? reader["Telefon"].ToString() : "Brak";
+                    string miasto = reader["Miasto"].ToString();
+                    Console.WriteLine("{0,-25} | {1,-15} | {2,-20}", nazwa, telefon, miasto);
+                }
+                Console.WriteLine("Koniec informacji z Dostawcy");
+            }
         }
     }
-
     static void ExecuteQuery(SqlConnection connection, string query)
     {
         using (SqlCommand command = new SqlCommand(query, connection))
