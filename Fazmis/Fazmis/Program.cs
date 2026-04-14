@@ -1,13 +1,14 @@
 ﻿//Wersja DotNeta 9
-using System;
 using Microsoft.Data.SqlClient; // Zmieniłem pakiet ponieważ poprzedni powodował błędy 
+using System;
 class Program
 {
+    // Przerzuciłem tutaj connectionStringa żeby pisać spróbować napisać jakieś metody 
+    private static string dbConnectionString = @"Server=.\SQLEXPRESS;Database=Fazmis;Integrated Security=true;TrustServerCertificate=True;"; 
     static void Main()
     {
         string serverConnection = @"Server=.\SQLEXPRESS;Integrated Security=true;TrustServerCertificate=True;";
         string databaseName = "Fazmis";
-        string dbConnectionString = $@"Server=.\SQLEXPRESS;Database={databaseName};Integrated Security=true;TrustServerCertificate=True;";
 
         // 1. Tworzenie Bazy Danych
         using (SqlConnection connection = new SqlConnection(serverConnection))
@@ -91,6 +92,7 @@ class Program
             );";
 
             ExecuteQuery(connection, createTablesQuery);
+            //2. Wypełnianie tabel danymi
             string DanePrzyklad = @"
             IF NOT EXISTS (SELECT * FROM Kategorie)
             BEGIN
@@ -133,21 +135,44 @@ class Program
                 Console.WriteLine("Koniec informacji z Kategorii");
             }
                 ExecuteQuery(connection, ZKategorii);
-            string ZDostawcy = "SELECT Nazwa, Telefon, Miasto FROM Dostawcy";
+        }
+        CzytajDostawce();
+        UsunDostawce("Hurtownia Ital-Food");
+        CzytajDostawce();
+    }
+    public static void CzytajDostawce()
+    {
+        string ZDostawcy = "SELECT Nazwa, Telefon, Miasto FROM Dostawcy";
 
+        using (SqlConnection connection = new SqlConnection(dbConnectionString))
+        {
             SqlCommand polecenie2 = new SqlCommand(ZDostawcy, connection);
+            connection.Open();
 
             using (SqlDataReader reader = polecenie2.ExecuteReader())
             {
+                Console.WriteLine("\n--- LISTA DOSTAWCÓW ---");
                 while (reader.Read())
                 {
                     string nazwa = reader["Nazwa"].ToString();
-                    string telefon = reader["Telefon"] != DBNull.Value ? reader["Telefon"].ToString() : "Brak";
+                    string telefon = reader["Telefon"].ToString();
                     string miasto = reader["Miasto"].ToString();
+
                     Console.WriteLine("{0,-25} | {1,-15} | {2,-20}", nazwa, telefon, miasto);
                 }
-                Console.WriteLine("Koniec informacji z Dostawcy");
+                Console.WriteLine("Koniec informacji z Dostawcy\n");
             }
+        }
+    }
+    public static void UsunDostawce(string nazwa)
+    {
+        using (SqlConnection connection = new SqlConnection(dbConnectionString))
+        {
+            string query = "DELETE FROM Dostawcy WHERE Nazwa = @nazwa";
+            SqlCommand cmd = new SqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@nazwa", nazwa);
+            connection.Open();
+            cmd.ExecuteNonQuery();
         }
     }
     static void ExecuteQuery(SqlConnection connection, string query)

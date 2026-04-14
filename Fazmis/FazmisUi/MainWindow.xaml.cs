@@ -20,8 +20,7 @@ namespace FazmisUi
         {
             InitializeComponent();
 
-            var db = new Program.cs();
-            db.SeedData(); 
+            var db = new MainWindow();
         }
     }
 }
