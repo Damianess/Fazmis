@@ -5,28 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FazmisUi"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="System Zarządzania Pizzerią" Height="450" Width="800">
     <Grid>
         <TabControl>
             <TabItem Header="Magazyn">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Background="#F0F0F0" Margin="5">
-                        <Button Content="Odśwież" Click="BtnLadujMagazyn_Click" Width="100" Margin="5"/>
-                        <Button Content="Dodaj Produkt" Click="BtnDodajProdukt_Click" Width="120" Margin="5" Background="#E1F5FE"/>
-                        <Button Content="Usuń Produkt" Click="BtnUsunProdukt_Click" Width="120" Margin="5" Background="#FFEBEE"/>
+                        <Button Content="Odśwież" Click="BtnLoadWarehouse_Click" Width="100" Margin="5"/>
+                        <Button Content="Dodaj Produkt" Click="BtnAddProduct_Click" Width="120" Margin="5" Background="#E1F5FE"/>
+                        <Button Content="Usuń Produkt" Click="BtnDeleteProduct_Click" Width="120" Margin="5" Background="#FFEBEE"/>
                     </StackPanel>
-                    <DataGrid x:Name="dgMagazyn" AutoGenerateColumns="True" Margin="5" IsReadOnly="True" SelectionMode="Single"/>
+                    <DataGrid x:Name="dgWarehouse" AutoGenerateColumns="True" Margin="5" IsReadOnly="True" SelectionMode="Single"/>
                 </DockPanel>
             </TabItem>
 
             <TabItem Header="Dostawcy">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Background="#F0F0F0" Margin="5">
-                        <Button Content="Odśwież" Click="BtnLadujDostawcow_Click" Width="100" Margin="5"/>
-                        <Button Content="Dodaj Dostawcę" Click="BtnDodajDostawce_Click" Width="120" Margin="5" Background="#E1F5FE"/>
-                        <Button Content="Usuń Dostawcę" Click="BtnUsunDostawce_Click" Width="120" Margin="5" Background="#FFEBEE"/>
+                        <Button Content="Odśwież" Click="BtnLoadSuppliers_Click" Width="100" Margin="5"/>
+                        <Button Content="Dodaj Dostawcę" Click="BtnAddSupplier_Click" Width="120" Margin="5" Background="#E1F5FE"/>
+                        <Button Content="Usuń Dostawcę" Click="BtnDeleteSupplier_Click" Width="120" Margin="5" Background="#FFEBEE"/>
                     </StackPanel>
-                    <DataGrid x:Name="dgDostawcy" AutoGenerateColumns="True" Margin="5" IsReadOnly="True" SelectionMode="Single"/>
+                    <DataGrid x:Name="dgSuppliers" AutoGenerateColumns="True" Margin="5" IsReadOnly="True" SelectionMode="Single"/>
                 </DockPanel>
             </TabItem>
         </TabControl>

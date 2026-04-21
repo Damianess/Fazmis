@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Fazmis/Fazmis.csproj" />
+  <Project Path="FazmisDbCreator/FazmisDbCreator.csproj" Id="770d08a4-3094-4dc2-8011-cbf95b05d9f2" />
   <Project Path="FazmisUi/FazmisUi.csproj" Id="835a7409-de14-43bf-8a21-5e160d711a52" />
 </Solution>
